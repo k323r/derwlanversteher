@@ -1,32 +1,54 @@
 #!/usr/bin/env python
 
-from scapy.all import *
+import os.path
+import sys
+
+from scapy.all import load_module, sniff, Dot11
+
+USAGE = """\
+usage: sudo python log.py <interface> <logfile_name>
+example: sudo python log.py wlp1s0mon maclog.dat"""
+ROOT = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+DIR_DATA = os.path.join(ROOT, 'data')
 
 ### see the following link for package types
 # https://supportforums.cisco.com/document/52391/80211-frames-starter-guide-learn-wireless-sniffer-traces
 
-ap_list = []
+ap_list = [] # set()
 subtype_list = []
 type_list = []
 
 accepted_subtypes = [0, 2, 4]
 
-interface = "wlp1s0mon"
-load_module("p0f")
+# read command line parameters
+try:
+    interface, fname_log = sys.argv[1:]
+except:
+    print USAGE
+    sys.exit()
 
-f_dump = open("sample5.dat", "w+")
+# init log file
+path_log = os.path.join(DIR_DATA, fname_log)
+if os.path.exists(path_log):
+    print 'Log file exists already: %s. Exiting.' % path_log
+    sys.exit()
+f_dump = open(path_log, "w+")
 f_dump.writelines("MAC RSSI\n")
 
-def PacketHandler (pkt):#
-    if pkt.haslayer (Dot11):		#print (str(pkt.subtype))
+# What is p0f ?
+load_module("p0f")
+
+def PacketHandler(pkt):
+    if pkt.haslayer(Dot11):
         if pkt.type == 0 and pkt.subtype in accepted_subtypes:
             if pkt.addr2 not in ap_list:
                 extra = pkt.notdecoded 
                 rssi = -(256-ord(extra[-4:-3]))
-                ap_list.append(pkt.addr2)
+                ap_list.append(pkt.addr2) # set --> add
                 print 'MAC adress %s strength (dBm) %s' %(pkt.addr2, rssi)
                 f_dump.writelines('%s %s \n' %(pkt.addr2, rssi))
                 f_dump.flush()
+
 
 sniff(iface = interface , prn = PacketHandler, store = 0)
 
