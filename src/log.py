@@ -117,7 +117,7 @@ class Logger(object):
             sys.exit()
         self.logfile_handle = open(self.logfile_path, "w+")
         self.logfile_handle.write(
-            "mac_address,rssi,timestamp,packet_type,packet_subtype\n")
+            "mac_address,rssi,time_stamp,packet_type,packet_subtype\n")
 
     def _setup_sniffing(self):
         """
