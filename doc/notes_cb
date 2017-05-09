@@ -1,3 +1,88 @@
+ISSUE:
+    Since log.py is run by root, the data directory (if created automatically)
+    will belong to root and be accessible by root only.
+
+###############################################################################
+scapy exploration
+###############################################################################
+
+[2017-05-09 15:12:37] ~/Downloads/scapy
+    git clone https://github.com/secdev/scapy.git
+
+[2017-05-09 15:15:47] ~/Downloads/scapy/scapy/scapy
+    grep -r notdecoded .
+./layers/dot11.py:                    FieldLenField('len', None, 'notdecoded', '<H', adjust=lambda pkt,x:x+8),
+./layers/dot11.py:                    StrLenField('notdecoded', "", length_from= lambda pkt:pkt.len-8) ]
+./layers/dot11.py:                    StrLenField("notdecoded", "", length_from = lambda pkt:pkt.len-8)
+
+[2017-05-09 15:15:59] ~/Downloads/scapy/scapy/scapy
+    grep -r addr2 .
+./layers/dot11.py:            MACField("addr2", ETHER_ANY),
+./layers/dot11.py:        return self.sprintf("802.11 %Dot11.type% %Dot11.subtype% %Dot11.addr2% > %Dot11.addr1%")
+./layers/dot11.py:                if self.addr1.lower() != other.addr2.lower(): # check resp DA w/ req SA
+./layers/dot11.py:        p.addr1,p.addr2 = p.addr2,p.addr1
+./layers/dot11.py:        p.addr1,p.addr2 = p.addr2,p.addr1
+
+[2017-05-09 15:17:44] ~/Downloads/scapy/scapy/scapy
+    grep -rE "^class Packet\(" .
+./packet.py:class Packet(BasePacket):
+
+[2017-05-09 15:17:49] ~/Downloads/scapy/scapy/scapy
+    grep -rE "^class BasePacket\(" .
+./base_classes.py:class BasePacket(Gen):
+
+[2017-05-09 15:20:04] ~/Downloads/scapy/scapy/scapy
+    grep -rE "^class Gen\(" .
+./base_classes.py:class Gen(object):
+
+
+class Gen(object):
+    __slots__ = []
+    def __iter__(self):
+        return iter([])
+
+class BasePacket(Gen):
+    __slots__ = []
+
+
+
+{
+    'sent_time': 0, 
+    'fields': {
+        'version': 0,
+        'pad': 0,
+        'present': 2684370990L,
+        'len': 30,
+        'notdecoded': ' \x08\x00\xa0 \x08\x00\x00\x10\x0c\x85\t\xc0\x00\xb4\x00\x00\x00\xac\x00\xb4\x01'
+    },
+    'aliastypes': [<class 'scapy.layers.dot11.RadioTap'>],
+    'post_transforms': [],
+    'underlayer': None,
+    'fieldtype': {
+        'version': <Field (RadioTap).version>,
+        'pad': <Field (RadioTap).pad>,
+        'present': <Field (RadioTap).present>,
+        'len': <Field (RadioTap).len>,
+        'notdecoded': <Field (RadioTap).notdecoded>},
+    'time': 1494340294.288084,
+    'initialized': 1,
+    'overloaded_fields': {},
+    'packetfields': [],
+    'payload': 
+        <Dot11  subtype=4L type=Management proto=0L FCfield= ID=0 addr1=ff:ff:ff:ff:ff:ff addr2=e4:a7:a0:67:ae:21 addr3=ff:ff:ff:ff:ff:ff SC=42208 addr4=None 
+        |<Dot11ProbeReq  
+        |<Dot11Elt  ID=SSID len=0 info='' 
+        |<Dot11Elt  ID=Rates len=8 info='\x8c\x12\x98$\xb0H`l' 
+        |<Dot11Elt  ID=45 len=26 info='\xe7\t\x17\xff\xff\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00' 
+        |<Dot11Elt  ID=vendor len=7 info='\x00P\xf2\x08\x00\x0f\x00' 
+        |<Dot11Elt  ID=143 len=118 info='\xc3\x06' 
+        |>>>>>>>,
+    'default_fields': {'version': 0, 'pad': 0, 'present': None, 'len': None, 'notdecoded': ''}}
+
+
+
+###############################################################################
+
 TODO
     log.py
         how / under which conditions is it possible to log date/time
