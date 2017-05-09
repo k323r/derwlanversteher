@@ -85,7 +85,7 @@ class Logger(object):
         """
         Create the DIR_DATA if necessary, then start a fresh log at
         self.logfile_path -- unless it exists already and shall not be
-       overwritten, in which case we exit. Keep the logfile open for further
+        overwritten, in which case we exit. Keep the logfile open for further
         additions.
         TODO: Refactor into database connect and update routine.
         """
@@ -105,7 +105,7 @@ class Logger(object):
         Requisites for handle_packet.
         """
         load_module("p0f")
-        self.macs = set()
+        self.mac_addresses = set()
 
     def handle_packet(self, packet):
         """
@@ -117,13 +117,13 @@ class Logger(object):
         """
         if is_acceptable(packet):
             # https://en.wikipedia.org/wiki/MAC_address
-            mac = packet.addr2
-            if not mac in self.macs:
+            mac_address = packet.addr2
+            if not mac_address in self.mac_addresses:
                 # https://en.wikipedia.org/wiki/Received_signal_strength_indication
                 rssi = -(256-ord(packet.notdecoded[-4:-3]))
-                print 'MAC adress %s strength (dBm) %s' %(mac, rssi)
-                self.macs.add(mac)
-                self.logfile_handle.write('%s %s\n' %(mac, rssi))
+                print 'MAC adress %s strength (dBm) %s' %(mac_address, rssi)
+                self.mac_addresses.add(mac_address)
+                self.logfile_handle.write('%s %s\n' %(mac_address, rssi))
                 self.logfile_handle.flush()
 
 if __name__ == '__main__':
