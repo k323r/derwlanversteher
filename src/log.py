@@ -6,9 +6,20 @@ import sys
 
 from scapy.all import load_module, sniff, Dot11
 
-USAGE = """\
-usage: sudo python log.py [-f] <monitoring-interface> <logfile-name>
-example: sudo python log.py wlp1s0mon test.dat"""
+USAGE = """
+Usage: sudo python log.py [-c] [-f] [-i] <monitoring-interface> <logfile-name>
+
+Example: sudo python log.py -fi wlp1s0mon test.dat
+
+Options:
+
+    -c  Continuous logging, i.e. log every acceptable packet. If this option is
+        absent, only the first acceptable packet per mac address is logged.
+
+    -f  Force overwrite of an already existing logfile.
+
+    -i  Inspect packets that are logged, i.e. print their contents (currently:
+        packet.__dict__ and packet.command()) to stdout."""
 
 DIR_ROOT = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 DIR_DATA = os.path.join(DIR_ROOT, 'data')
@@ -42,20 +53,24 @@ def get_command_line_parameters():
     If the user supplies proper parameters, parse and return them in a format
     compatible with Logger.__init__. Otherwise print USAGE information to
     stdout and exit.
-    Note: I couldn't be bothered setting up argparse for one simple development
-    convenience flag. If more command line options should be desired in the
-    future, this decision might be reconsidered.
+    TODO: The command line options started as a simple development convenience
+    flag (-f) for which I couldn't be bothered setting up argparse. Now that
+    the options have multiplied, this decision is up for reconsideration.
     """
     args = sys.argv
     options = [arg for arg in args if arg.startswith('-')]
     parameters = [arg for arg in args if not arg in options]
-    overwrite_logfile = ('-f' in options)
+    shall_overwrite_log = any(('f' in o) for o in options)
+    shall_inspect_packets = any(('i' in o) for o in options)
+    shall_log_continuously = any(('c' in o) for o in options)
     try:
         monitoring_interface, logfile_name = parameters[1:3]
     except:
         print USAGE
         sys.exit()
-    return monitoring_interface, logfile_name, overwrite_logfile
+    return (
+        monitoring_interface, logfile_name, shall_overwrite_log,
+        shall_inspect_packets, shall_log_continuously)
 
 def is_acceptable(packet):
     """
@@ -74,10 +89,13 @@ class Logger(object):
     Unfortunately, scapy.all.sniff seems to insist on managing the main loop
     internally, instead of beeing managed by one.
     """
-    def __init__(self, monitoring_interface, logfile_name, overwrite_logfile):
+    def __init__(self, monitoring_interface, logfile_name, shall_overwrite_log,
+                    shall_inspect_packets, shall_log_continuously):
         self.monitoring_interface = monitoring_interface
         self.logfile_path = os.path.join(DIR_DATA, logfile_name)
-        self.overwrite_logfile = overwrite_logfile
+        self.shall_overwrite_log = shall_overwrite_log
+        self.shall_inspect_packets = shall_inspect_packets
+        self.shall_log_continuously = shall_log_continuously
         self._init_log_file()
         self._setup_sniffing()
 
@@ -94,11 +112,12 @@ class Logger(object):
         except OSError as e:
             print e
             sys.exit()
-        if os.path.exists(self.logfile_path) and not self.overwrite_logfile:
+        if os.path.exists(self.logfile_path) and not self.shall_overwrite_log:
             print 'Log file exists already: %s. Exiting.' % self.logfile_path
             sys.exit()
         self.logfile_handle = open(self.logfile_path, "w+")
-        self.logfile_handle.write("mac rssi\n")
+        self.logfile_handle.write(
+            "mac_address,rssi,timestamp,packet_type,packet_subtype\n")
 
     def _setup_sniffing(self):
         """
@@ -106,6 +125,11 @@ class Logger(object):
         """
         load_module("p0f")
         self.mac_addresses = set()
+
+    def _shall_be_logged(self, mac_address):
+        return (
+            self.shall_log_continuously 
+            or (not mac_address in self.mac_addresses))
 
     def handle_packet(self, packet):
         """
@@ -118,13 +142,28 @@ class Logger(object):
         if is_acceptable(packet):
             # https://en.wikipedia.org/wiki/MAC_address
             mac_address = packet.addr2
-            if not mac_address in self.mac_addresses:
+            if self._shall_be_logged(mac_address):
+                self.mac_addresses.add(mac_address)
+                if self.shall_inspect_packets:
+                    show_inspection(packet)
                 # https://en.wikipedia.org/wiki/Received_signal_strength_indication
                 rssi = -(256-ord(packet.notdecoded[-4:-3]))
-                print 'MAC adress %s strength (dBm) %s' %(mac_address, rssi)
-                self.mac_addresses.add(mac_address)
-                self.logfile_handle.write('%s %s\n' %(mac_address, rssi))
+                self.logfile_handle.write(
+                    '%s,%s,%s,%s,%s\n' % (
+                        mac_address,
+                        rssi,
+                        packet.time,
+                        packet.type,
+                        packet.subtype))
                 self.logfile_handle.flush()
+
+def show_inspection(packet):
+    print '#### packet dict ####'
+    print packet.__dict__
+    print ''
+    print '#### packet command ####'
+    print packet.command()
+    print ''
 
 if __name__ == '__main__':
     lgr = Logger(*get_command_line_parameters())
