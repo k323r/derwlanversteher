@@ -1,0 +1,29 @@
+scapy: was noch in den paketen
+meld (mergetool)
+
+
+# requirements
+
+    # install dependencies for aircrack
+    sudo apt-get install openssl
+    sudo apt-get install libssl-dev
+    sudo apt-get install libnl-genl-3-200 libnl-genl-3-dev libnl-idiag-3-dev libnl-3-dev
+
+    # download aircrack
+    http://aircrack-ng.org/
+
+    # make and install aircrack
+    make && sudo make install
+
+    # dependencies for scapy
+    sudo apt-get install python-scapy
+    sudo apt-get install tcpdump
+
+
+# first steps
+
+    iwconfig # ==> <wlan-interface>
+    sudo airmon-ng start <wlan-interface>
+    iwconfig # ==> <monitoring-interface>
+    sudo airodump-ng <monitoring-interface>
+    sudo airmon-ng stop <monitoring-interface>
