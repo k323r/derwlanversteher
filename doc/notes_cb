@@ -1,8 +1,8 @@
 TODO
-    clean up log.py
-        f_dump not global
-        PEP-8
-        turn sniff function inside out (manage main loop)
+    log.py
+        how / under which conditions is it possible to log date/time
+        maybe, if possible, turn sniff function inside out (manage main loop)
+        maybe import logging instead of print
     .gitignore
     read scapy docs: what else is in the packets (==> application ideas)
     set up distributed logging concept with sql databases
@@ -10,7 +10,30 @@ TODO
     [personal] get and learn meld (git mergetool)
 
 DONE
-    -f option ==> overwrite logfile
+    cleanup log.py
+        f_dump not global
+        no magic numbers
+        self-documenting code
+        docstrings (with TODOs)
+        PEP-8
+        logfile overwrite option
+        autocreate data directory
+
+
+EXTERNAL BUG: Every one of the following scapy imports produces a warning:
+
+$ python
+>>> from scapy.all import load_module
+WARNING: No route found for IPv6 destination :: (no default route?)
+
+$ python
+>>> from scapy.all import sniff
+WARNING: No route found for IPv6 destination :: (no default route?)
+
+$ python
+>>> from scapy.all import Dot11
+WARNING: No route found for IPv6 destination :: (no default route?)
+
 
 
 # requirements for debian systems
