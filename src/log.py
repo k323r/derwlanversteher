@@ -6,8 +6,9 @@ import sys
 from scapy.all import load_module, sniff, Dot11
 
 USAGE = """\
-usage: sudo python log.py <interface> <logfile_name>
-example: sudo python log.py wlp1s0mon maclog.dat"""
+usage: sudo python log.py [-f] <monitoring-interface> <logfile-name>
+example: sudo python log.py wlp1s0mon macs.dat"""
+
 ROOT = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 DIR_DATA = os.path.join(ROOT, 'data')
 
@@ -20,16 +21,20 @@ type_list = []
 
 accepted_subtypes = [0, 2, 4]
 
-# read command line parameters
+# read command line parameters and maybe overwrite option
+args = sys.argv
+options = [arg for arg in args if arg.startswith('-')]
+parameters = [arg for arg in args if not arg in options]
+use_the_force = ('-f' in options)
 try:
-    interface, fname_log = sys.argv[1:]
+    interface, fname_log = parameters[1:3]
 except:
     print USAGE
     sys.exit()
 
 # init log file
 path_log = os.path.join(DIR_DATA, fname_log)
-if os.path.exists(path_log):
+if (not use_the_force) and os.path.exists(path_log):
     print 'Log file exists already: %s. Exiting.' % path_log
     sys.exit()
 f_dump = open(path_log, "w+")
