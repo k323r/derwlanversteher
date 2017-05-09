@@ -1,8 +1,12 @@
-scapy: was noch in den paketen
-meld (mergetool)
+TODO
+    clean up log.py
+    read scapy docs: what else is in the packets (==> application ideas)
+    set up distributed logging concept with sql databases
+    extract config/setup script from "first steps" (see below)
+    [personal] get and learn meld (git mergetool)
 
 
-# requirements
+# requirements for debian systems
 
     # install dependencies for aircrack
     sudo apt-get install openssl
@@ -22,8 +26,17 @@ meld (mergetool)
 
 # first steps
 
-    iwconfig # ==> <wlan-interface>
+    # get <wlan-interface>
+    iwconfig
+
+    # put <wlan-interface> into monitoring mode
     sudo airmon-ng start <wlan-interface>
-    iwconfig # ==> <monitoring-interface>
+
+    # get <monitoring-interface>
+    iwconfig
+
+    # start dumping on the console (alternatively: run log.py)
     sudo airodump-ng <monitoring-interface>
+
+    # when you are done, put <wlan-interface> back into normal mode
     sudo airmon-ng stop <monitoring-interface>
