@@ -1,9 +1,16 @@
 TODO
     clean up log.py
+        f_dump not global
+        PEP-8
+        turn sniff function inside out (manage main loop)
+    .gitignore
     read scapy docs: what else is in the packets (==> application ideas)
     set up distributed logging concept with sql databases
     extract config/setup script from "first steps" (see below)
     [personal] get and learn meld (git mergetool)
+
+DONE
+    -f option ==> overwrite logfile
 
 
 # requirements for debian systems
