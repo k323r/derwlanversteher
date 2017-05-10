@@ -4,7 +4,7 @@
 --      compare memory footprint to plain text logging
 -------------------------------------------------------------------------------
 
-CREATE TABLE packet_types(
+CREATE TABLE packet_types (
     -- static descriptions of packet types
     -- https://supportforums.cisco.com/document/52391/80211-frames-starter-guide-learn-wireless-sniffer-traces
     packet_type INTEGER CHECK (packet_type BETWEEN 0 and 2),
@@ -31,7 +31,7 @@ CREATE TABLE mac_addresses (
     -- just a bijection to save some space in tables referencing mac addresses
     -- TODO: Does this really save space?
     id_logging_device INTEGER NOT NULL CHECK (id_logging_device > 0),
-    id_mac_address INTEGER NOT NULL CHECK (id_logging_device > 0),
+    id_mac_address INTEGER NOT NULL CHECK (id_mac_address > 0),
     mac_address TEXT NOT NULL,
 
     PRIMARY KEY (id_logging_device, id_mac_address)
@@ -84,9 +84,9 @@ CREATE VIEW packets_by_locations AS
         time_stamp,
         packet_type,
         packet_subtype,
+        rssi,
         packet_type_description,
         packet_subtype_description,
-        rssi,
         latitude,
         longitude
     FROM
