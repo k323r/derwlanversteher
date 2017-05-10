@@ -1,6 +1,15 @@
+###############################################################################
 ISSUE:
     Since log.py is run by root, the data directory (if created automatically)
     will belong to root and be accessible by root only.
+###############################################################################
+
+# Create a test database with some test data and view the result:
+cd derwlanversteher
+rm -f data/test.db && cat src/schema.sql src/insert_packet_types.sql src/insert_test_data.sql | sqlite3 data/test.db
+cat src/select_test_packets_by_locations.sql | sqlite3 data/test.db
+
+
 
 ###############################################################################
 scapy exploration

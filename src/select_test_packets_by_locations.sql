@@ -1,0 +1,13 @@
+SELECT
+    mac_address,
+    rssi,
+    time_stamp,
+    latitude,
+    longitude,
+    packet_type,
+    packet_subtype,
+    packet_type_description,
+    packet_subtype_description
+FROM
+    packets_by_locations
+;
