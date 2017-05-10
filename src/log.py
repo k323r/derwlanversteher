@@ -27,6 +27,7 @@ DIR_DATA = os.path.join(DIR_ROOT, 'data')
 # Package types and subtypes.
 # More information:
 # https://supportforums.cisco.com/document/52391/80211-frames-starter-guide-learn-wireless-sniffer-traces
+# TODO: Complete this list (see ./insert_packet_types.sql).
 T_MANAGEMENT = 0
 ST_ASSOCIATION_REQUEST = 0
 ST_REASSOCIATION_REQUEST = 2
@@ -83,6 +84,22 @@ def is_acceptable(packet):
         and packet.type == T_MANAGEMENT
         and packet.subtype in ACCEPTED_SUBTYPES)
 
+def show_inspection(packet):
+    """
+    Development tool: Print as much packet information as you can to stdout.
+    The __dict__ attribute and commend method can be found in the Packet help:
+    >>> from scapy.all import Packet
+    >>> help(Packet)
+    The scapy documentation may also be useful:
+    http://www.secdev.org/projects/scapy/doc/usage.html
+    """
+    print '#### packet dict ####'
+    print packet.__dict__
+    print ''
+    print '#### packet command ####'
+    print packet.command()
+    print ''
+
 class Logger(object):
     """
     Basically a wrapper around handle_packet to avoid a global logfile_handle.
@@ -103,8 +120,8 @@ class Logger(object):
         """
         Create the DIR_DATA if necessary, then start a fresh log at
         self.logfile_path -- unless it exists already and shall not be
-        overwritten, in which case we exit. Keep the logfile open for further
-        additions.
+        overwritten, in which case we exit. In case of success, keep the
+        logfile open for further additions.
         TODO: Refactor into database connect and update routine.
         """
         try:
@@ -156,14 +173,6 @@ class Logger(object):
                         packet.type,
                         packet.subtype))
                 self.logfile_handle.flush()
-
-def show_inspection(packet):
-    print '#### packet dict ####'
-    print packet.__dict__
-    print ''
-    print '#### packet command ####'
-    print packet.command()
-    print ''
 
 if __name__ == '__main__':
     lgr = Logger(*get_command_line_parameters())
