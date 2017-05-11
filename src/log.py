@@ -87,7 +87,7 @@ def is_acceptable(packet):
 def show_inspection(packet):
     """
     Development tool: Print as much packet information as you can to stdout.
-    The __dict__ attribute and commend method can be found in the Packet help:
+    The __dict__ attribute and command method can be found in the Packet help:
     >>> from scapy.all import Packet
     >>> help(Packet)
     The scapy documentation may also be useful:

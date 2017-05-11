@@ -31,6 +31,7 @@ log.py
     what else is in the scapy packets (==> application ideas)
     set up distributed logging concept with sql databases
 .gitignore
+decode mac addresses (which vendor, which model)
 [personal] get and learn meld (git mergetool)
 further topics: grep -r TODO
 
