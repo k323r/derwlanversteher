@@ -5,6 +5,8 @@ import sys
 
 from scapy.all import load_module, sniff, Dot11
 
+from conf import DIR_DATA
+
 USAGE = """
 Usage: sudo python log.py [-c] [-i] <monitoring-interface>
 
@@ -17,9 +19,6 @@ Options:
 
     -i  Inspect packets that are logged, i.e. print their contents (currently:
         packet.__dict__ and packet.command()) to stdout."""
-
-DIR_ROOT = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-DIR_DATA = os.path.join(DIR_ROOT, 'data')
 
 # Package types and subtypes.
 # More information:
