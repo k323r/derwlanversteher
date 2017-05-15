@@ -35,32 +35,26 @@ CREATE TABLE packet_subtypes (
 CREATE TABLE mac_addresses (
     -- just a bijection to save some space in tables referencing mac addresses
     -- TODO: Does this really save space?
-    -- Note: mac_address is not UNIQUE, because we intend to append databases
-    -- of multiple logging devices.
-    id_logging_device INTEGER NOT NULL,
+    -- Note: id_mac_address is just the integer value of mac_address.
     id_mac_address INTEGER NOT NULL,
     mac_address TEXT NOT NULL,
 
-    PRIMARY KEY (id_logging_device, id_mac_address),
+    PRIMARY KEY (id_mac_address),
 
-    CHECK (id_logging_device > 0),
-    CHECK (id_mac_address > 0)
+    CHECK (id_mac_address >= 0)
 );
 
 CREATE TABLE packets (
-    id_logging_device INTEGER NOT NULL,
     id_mac_address INTEGER NOT NULL,
     time_stamp REAL NOT NULL,
     packet_type INTEGER NOT NULL,
     packet_subtype INTEGER NOT NULL,
     rssi INTEGER NOT NULL,
 
-    PRIMARY KEY (
-        id_logging_device, id_mac_address, time_stamp, packet_type,
-        packet_subtype),
+    PRIMARY KEY (id_mac_address, time_stamp, packet_type, packet_subtype),
 
-    FOREIGN KEY (id_logging_device, id_mac_address)
-        REFERENCES mac_addresses (id_logging_device, id_mac_address)
+    FOREIGN KEY (id_mac_address)
+        REFERENCES mac_addresses (id_mac_address)
         ON UPDATE CASCADE
         ON DELETE CASCADE,
     FOREIGN KEY (packet_type, packet_subtype) 
@@ -106,7 +100,7 @@ CREATE VIEW packets_by_locations AS
         longitude
     FROM
         mac_addresses
-        JOIN packets USING (id_logging_device, id_mac_address)
+        JOIN packets USING (id_mac_address)
         JOIN packet_type_descriptions USING (packet_type, packet_subtype)
         JOIN locations ON
             time_stamp_start <= time_stamp
