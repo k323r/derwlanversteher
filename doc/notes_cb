@@ -24,6 +24,10 @@ External bug: Every one of the following scapy imports produces a warning:
 # TODO
 ###############################################################################
 
+decode mac addresses (which vendor, which model)
+    https://github.com/coolbho3k/manuf
+    Parser library for Wireshark's OUI database.
+    i downloaded the database: ./decode_mac_addresses/manuf
 log.py
     how / under which conditions is it possible to log date/time
     maybe, if possible, turn sniff function inside out (manage main loop)
@@ -31,7 +35,7 @@ log.py
     what else is in the scapy packets (==> application ideas)
     set up distributed logging concept with sql databases
 .gitignore
-decode mac addresses (which vendor, which model)
+
 [personal] get and learn meld (git mergetool)
 further topics: grep -r TODO
 
@@ -82,9 +86,28 @@ sudo airmon-ng stop <monitoring-interface>
 # First steps with the logger
 ###############################################################################
 
+# Run the logger without parameters to see its help message:
+python src/log.py
+
+
+###############################################################################
+# Test the database schema
+###############################################################################
+
 # Create a test database with some test data and view the result:
 rm -f data/test.db && cat src/schema.sql src/insert_packet_types.sql src/insert_test_data.sql | sqlite3 data/test.db
 cat src/select_test_packets_by_locations.sql | sqlite3 data/test.db
 
-# Run the logger without parameters to see its help message:
-python src/log.py
+
+###############################################################################
+# Test the database importer
+###############################################################################
+
+# Create an empty database just with the schema
+rm -f data/the.db && cat src/schema.sql | sqlite3 data/the.db
+
+# Import the data
+tail -n +2 data/12_05_17_testrun.dat | python src/database_import.py the.db
+
+# Import more data
+tail -n +2 data/12_05_17_testrun2.dat | python src/database_import.py the.db
